@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Sesión 2 · Ejecutar y explicar",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/main.py",
+      "console": "integratedTerminal",
+      "args": ["--debug"],
+      "justMyCode": true
+    },
+    {
+      "name": "Sesión 2 · Ticket de ejemplo",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/main.py",
+      "console": "integratedTerminal",
+      "args": [
+        "--debug",
+        "--ticket",
+        "El dashboard de producción no actualiza desde las 08:15. Consulta el SLA y revisa su estado."
+      ],
+      "justMyCode": true
+    }
+  ]
+}
