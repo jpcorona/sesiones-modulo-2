@@ -1,6 +1,0 @@
-{
-  "respuesta": "Necesito la **criticidad** del incidente para consultar el SLA oficial.\n\nIndícame una de estas opciones:\n- **baja**\n- **media**\n- **alta**\n- **crítica**\n\nSi ya la tienes, te doy el SLA en horas.",
-  "fuentes": [],
-  "eventos": [],
-  "latencia_s": 1.1
-}
