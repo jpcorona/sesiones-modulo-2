@@ -97,7 +97,6 @@ def rerank(query: str, candidates: list, top_k: int = 5):
     ranked = [dict(item, rerank_score=float(score)) for item, score in zip(candidates, scores)]
     return sorted(ranked, key=lambda item: item["rerank_score"], reverse=True)[:top_k]
 
-
 def generation_model(settings) -> str:
     return getattr(settings, "model", None) or settings.vision_model
 

@@ -1,0 +1,101 @@
+{
+  "respuesta": "La política indica que los colaboradores con jornada completa disponen de **15 días hábiles de vacaciones al año** y que la solicitud debe hacerse con **al menos 10 días corridos de anticipación** [DOC1].\n\nSi quieres, también puedo resumirte las condiciones de aprobación y excepciones de la política.",
+  "fuentes": [
+    {
+      "citation_id": "DOC1",
+      "chunk_id": "cecca56102ae8c74",
+      "source": "politica_vacaciones_digital.pdf",
+      "page": 1,
+      "text": "Politica de Vacaciones 2026 Objetivo: definir reglas simples para la solicitud y aprobacion de vacaciones. Los colaboradores con jornada completa disponen de 15 dias habiles de vacaciones al ano. La solicitud debe realizarse con al menos 10 dias corridos de anticipacion. La jefatura debe aprobar o r"
+    },
+    {
+      "citation_id": "DOC2",
+      "chunk_id": "c21e4c07a6ad575d",
+      "source": "politica_vacaciones_digital.pdf",
+      "page": 1,
+      "text": "arse con al menos 10 dias corridos de anticipacion. La jefatura debe aprobar o rechazar la solicitud antes de que el periodo comience. Las vacaciones no se consideran aprobadas hasta existir confirmacion explicita en el sistema. Ante dudas, el colaborador debe contactar a Recursos Humanos."
+    },
+    {
+      "citation_id": "DOC3",
+      "chunk_id": "88418950b56cae72",
+      "source": "politica_vacaciones_digital.pdf",
+      "page": 2,
+      "text": "Excepciones y trazabilidad Los feriados legales no descuentan dias habiles de vacaciones. Cada solicitud debe conservar fecha, responsable, estado y comentario de aprobacion. Cambios posteriores deben quedar auditados."
+    },
+    {
+      "citation_id": "DOC4",
+      "chunk_id": "4ca5fcaa6b2f5323",
+      "source": "orden_trabajo_escaneada.pdf",
+      "page": 1,
+      "text": "rueba y solicitar validacion de mantenimiento antes de reiniciar. Ultima medicion registrada: 89 C. Accion solicitada: inspeccionar lubricacion y alineacion."
+    },
+    {
+      "citation_id": "DOC5",
+      "chunk_id": "dde49feb749e9546",
+      "source": "manual_credenciales.pdf",
+      "page": 1,
+      "text": "Procedimiento para restablecer credenciales Si un usuario pierde acceso a su cuenta debe iniciar el procedimiento de restablecimiento de credenciales, validar su identidad y definir una nueva clave de acceso. Material sintetico para la demostracion de Retrieval Avanzado. No es documentacion operativ"
+    }
+  ],
+  "eventos": [
+    {
+      "evento": "inicio",
+      "ronda": 1,
+      "herramienta": "buscar_documentacion"
+    },
+    {
+      "evento": "resultado",
+      "ronda": 1,
+      "herramienta": "buscar_documentacion",
+      "latencia_s": 1.78,
+      "resultado": {
+        "estado": "ok",
+        "consulta_busqueda": "política vacaciones días de vacaciones y con cuánta anticipación se solicitan",
+        "evidencia": [
+          {
+            "citation_id": "DOC1",
+            "chunk_id": "cecca56102ae8c74",
+            "source": "politica_vacaciones_digital.pdf",
+            "page": 1,
+            "text": "Politica de Vacaciones 2026 Objetivo: definir reglas simples para la solicitud y aprobacion de vacaciones. Los colaboradores con jornada completa disponen de 15 dias habiles de vacaciones al ano. La solicitud debe realizarse con al menos 10 dias corridos de anticipacion. La jefatura debe aprobar o r",
+            "rerank_score": 6.116044044494629
+          },
+          {
+            "citation_id": "DOC2",
+            "chunk_id": "c21e4c07a6ad575d",
+            "source": "politica_vacaciones_digital.pdf",
+            "page": 1,
+            "text": "arse con al menos 10 dias corridos de anticipacion. La jefatura debe aprobar o rechazar la solicitud antes de que el periodo comience. Las vacaciones no se consideran aprobadas hasta existir confirmacion explicita en el sistema. Ante dudas, el colaborador debe contactar a Recursos Humanos.",
+            "rerank_score": 1.3320780992507935
+          },
+          {
+            "citation_id": "DOC3",
+            "chunk_id": "88418950b56cae72",
+            "source": "politica_vacaciones_digital.pdf",
+            "page": 2,
+            "text": "Excepciones y trazabilidad Los feriados legales no descuentan dias habiles de vacaciones. Cada solicitud debe conservar fecha, responsable, estado y comentario de aprobacion. Cambios posteriores deben quedar auditados.",
+            "rerank_score": -3.2163803577423096
+          },
+          {
+            "citation_id": "DOC4",
+            "chunk_id": "4ca5fcaa6b2f5323",
+            "source": "orden_trabajo_escaneada.pdf",
+            "page": 1,
+            "text": "rueba y solicitar validacion de mantenimiento antes de reiniciar. Ultima medicion registrada: 89 C. Accion solicitada: inspeccionar lubricacion y alineacion.",
+            "rerank_score": -6.286684513092041
+          },
+          {
+            "citation_id": "DOC5",
+            "chunk_id": "dde49feb749e9546",
+            "source": "manual_credenciales.pdf",
+            "page": 1,
+            "text": "Procedimiento para restablecer credenciales Si un usuario pierde acceso a su cuenta debe iniciar el procedimiento de restablecimiento de credenciales, validar su identidad y definir una nueva clave de acceso. Material sintetico para la demostracion de Retrieval Avanzado. No es documentacion operativ",
+            "rerank_score": -8.4778413772583
+          }
+        ],
+        "nota": "Candidatos recuperados: evaluar si sustentan la respuesta."
+      }
+    }
+  ],
+  "latencia_s": 4.5
+}

@@ -19,8 +19,8 @@ def main():
     results = rerank(args.query, candidates, args.top_k)
     print(f'Candidatos reales: {len(candidates)}; resultados finales: {len(results)}')
     for rank, item in enumerate(results, 1):
-        print(rank, f"rerank={item['rerank_score']:.4f} rrf={item['rrf_score']:.6f}", item['chunk'].source)
-        print(item['chunk'].text)
+        print(rank, f"rerank={item['rerank_score']:.4f} rrf={item['rrf_score']:.6f}", item['chunk'].source) # type: ignore
+        print(item['chunk'].text) # type: ignore
 
 if __name__ == "__main__":
     main()

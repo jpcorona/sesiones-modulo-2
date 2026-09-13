@@ -55,3 +55,23 @@ python -m unittest -v
 ```
 
 Las pruebas no hacen llamadas a OpenAI ni descargan modelos. Los documentos SAP son ejemplos sintéticos para enseñanza, no documentación operativa oficial.
+
+## Cierre: agente RAG con herramientas
+
+La demo final conecta el retrieval avanzado con la generación de respuestas y las
+herramientas simuladas de estado y SLA. El modelo decide cuáles consultar.
+
+```bash
+python 17_agente_rag.py --query "Que indica el boletin sobre F110-031?" --trace
+python 17_agente_rag.py --query "Incidente de criticidad alta en ERP con error F110-031. Consulta estado y SLA, y explica que revisar segun la documentacion." --trace --json-output work/demo_final.json
+```
+
+`agente_rag.py` devuelve respuesta, fuentes con página y chunk_id, eventos y latencia.
+`--history` recibe contexto explícito; no hay memoria persistente entre comandos.
+`--top-k`, `--candidate-k` y `--no-rewrite` permiten comparar la recuperación.
+La traza puede contener consultas y texto documental: usa los datos sintéticos de clase.
+Los IDs de cita se validan; esto no verifica que cada afirmación esté respaldada.
+El agente permite tres rondas de herramientas y reserva una llamada final sin ellas;
+si una cita tiene un ID inválido, permite una corrección adicional sin herramientas.
+No existen acciones de escritura ni conexión operativa a SAP. Las consultas al modelo
+son reales y consumen API. Ejecuta `python -m unittest -v` para los contratos sin red.

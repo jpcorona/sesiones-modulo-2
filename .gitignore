@@ -9,3 +9,6 @@ __pycache__/
 .vscode/*.log
 # Copias locales del proyecto
 Archivo*.zip
+
+# Archivos temporales y resultados locales
+work/

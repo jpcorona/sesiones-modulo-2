@@ -12,7 +12,10 @@ def main():
     settings = load_settings()
     client = build_client(settings)
     from retrieval_advanced import bm25_search, vector_search, reciprocal_rank_fusion
-    results = reciprocal_rank_fusion({'bm25': bm25_search(args.query, args.candidate_k), 'vector': vector_search(client, settings, args.query, args.candidate_k)})
+    results = reciprocal_rank_fusion({'bm25':
+                                      bm25_search(args.query, args.candidate_k),
+                                      'vector': vector_search(client, settings,
+                                                              args.query, args.candidate_k)})
     for rank, item in enumerate(results[:args.top_k], 1):
         print(rank, f"rrf={item['rrf_score']:.6f}", item['ranks'], item['chunk'].source)
 

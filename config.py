@@ -32,7 +32,7 @@ def load_settings(*, require_api_key: bool = True) -> Settings:
     load_dotenv()
     if require_api_key and not os.getenv("OPENAI_API_KEY"):
         raise RuntimeError(
-            "Falta OPENAI_API_KEY. Guarda CONFIGURA_AQUI.env como .env y agrega tu clave."
+            "Falta OPENAI_API_KEY. Copia .env.example como .env y agrega tu clave."
         )
     return Settings(
         model=os.getenv("OPENAI_MODEL", "gpt-5.4-mini"),

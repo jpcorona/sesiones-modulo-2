@@ -36,21 +36,41 @@ def parse_pdf_text(pdf_path: str | Path) -> list[PaginaExtraida]:
     return paginas
 
 
-def extraer_paginas(pdf_path: str | Path, *, use_ocr: bool = True) -> list[dict[str, Any]]:
-    """Compatibilidad con la API didáctica anterior: devuelve páginas con metadatos."""
+def extract_pdf_pages(pdf_path: str | Path, *, use_ocr: bool = True) -> list[PaginaExtraida]:
+    """Conserva texto digital y aplica OCR solo a páginas con poco texto."""
     paginas = parse_pdf_text(pdf_path)
-    if not use_ocr:
-        return [
-            {
-                "text": pagina.text,
-                "metadata": {
-                    "source": pagina.source,
-                    "page": pagina.page,
-                    "extraction_method": pagina.extraction_method,
-                },
-            }
-            for pagina in paginas
-        ]
+    if not use_ocr or all(len(p.text) >= 40 for p in paginas):
+        return paginas
+
+    from config import build_client, load_settings
+
+    settings = load_settings()
+    client = build_client(settings)
+    extraidas = []
+    for pagina in paginas:
+        if len(pagina.text) >= 40:
+            extraidas.append(pagina)
+            continue
+        image_bytes = pdf_page_to_png_bytes(pdf_path, pagina.page)
+        response = client.responses.create(
+            model=settings.vision_model,
+            input=[{
+                "role": "user",
+                "content": [
+                    {"type": "input_text", "text": "Transcribe fielmente todo el texto visible. No resumas. Si la página está vacía, devuelve texto vacío."},
+                    {"type": "input_image", "image_url": image_bytes_to_data_url(image_bytes)},
+                ],
+            }],
+        )
+        extraidas.append(PaginaExtraida(
+            source=pagina.source, page=pagina.page,
+            text=response.output_text.strip(), extraction_method="vision_ocr",
+        ))
+    return extraidas
+
+
+def extraer_paginas(pdf_path: str | Path, *, use_ocr: bool = True) -> list[dict[str, Any]]:
+    """Devuelve páginas con metadatos y fallback OCR opcional."""
     return [
         {
             "text": pagina.text,
@@ -60,7 +80,7 @@ def extraer_paginas(pdf_path: str | Path, *, use_ocr: bool = True) -> list[dict[
                 "extraction_method": pagina.extraction_method,
             },
         }
-        for pagina in paginas
+        for pagina in extract_pdf_pages(pdf_path, use_ocr=use_ocr)
     ]
 
 

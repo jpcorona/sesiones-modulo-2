@@ -1,0 +1,133 @@
+{
+  "respuesta": "Estado del sistema ERP: **operacional** (dato simulado), última actualización **10:30**.\n\nSLA para criticidad **alta**: **4 horas** (dato simulado).\n\nSegún la documentación recuperada sobre **F110-031**, el error aparece durante el proceso automático de pagos cuando la sociedad **no tiene una configuración válida para el método de pago seleccionado**. Lo que se debe revisar es:\n- la **sociedad**,\n- la **validez del método de pago**,\n- y luego **ejecutar nuevamente F110** [DOC1].\n\nImportante: la fuente también indica que es **material sintético de demostración** y **no documentación operativa oficial** [DOC2]. Por eso, la causa descrita es una **causa posible documentada**, no una confirmación del incidente.\n\nSi quieres, puedo ayudarte a redactar un resumen para el ticket con estado, SLA y pasos de revisión.",
+  "fuentes": [
+    {
+      "citation_id": "DOC1",
+      "chunk_id": "538952dd82a4df95",
+      "source": "boletin_sap_f110.pdf",
+      "page": 1,
+      "text": "Boletin tecnico SAP F110-031 El error F110-031 aparece durante el proceso automatico de pagos cuando la sociedad no tiene una configuracion valida para el metodo de pago seleccionado. Procedimiento: revisar sociedad, validar metodo de pago y ejecutar nuevamente F110. Material sintetico para la demos"
+    },
+    {
+      "citation_id": "DOC2",
+      "chunk_id": "63ab1ab82fb38c4c",
+      "source": "boletin_sap_f110.pdf",
+      "page": 1,
+      "text": "idar metodo de pago y ejecutar nuevamente F110. Material sintetico para la demostracion de Retrieval Avanzado. No es documentacion operativa oficial."
+    },
+    {
+      "citation_id": "DOC3",
+      "chunk_id": "fdcf3482c497ba19",
+      "source": "guia_general_errores_sap.pdf",
+      "page": 1,
+      "text": "sistema. Material sintetico para la demostracion de Retrieval Avanzado. No es documentacion operativa oficial."
+    },
+    {
+      "citation_id": "DOC4",
+      "chunk_id": "89f3998747dffe8a",
+      "source": "manual_credenciales.pdf",
+      "page": 1,
+      "text": "ntetico para la demostracion de Retrieval Avanzado. No es documentacion operativa oficial."
+    },
+    {
+      "citation_id": "DOC5",
+      "chunk_id": "c21e4c07a6ad575d",
+      "source": "politica_vacaciones_digital.pdf",
+      "page": 1,
+      "text": "arse con al menos 10 dias corridos de anticipacion. La jefatura debe aprobar o rechazar la solicitud antes de que el periodo comience. Las vacaciones no se consideran aprobadas hasta existir confirmacion explicita en el sistema. Ante dudas, el colaborador debe contactar a Recursos Humanos."
+    }
+  ],
+  "eventos": [
+    {
+      "evento": "inicio",
+      "ronda": 1,
+      "herramienta": "consultar_estado_sistema"
+    },
+    {
+      "evento": "resultado",
+      "ronda": 1,
+      "herramienta": "consultar_estado_sistema",
+      "latencia_s": 0.0,
+      "resultado": {
+        "sistema": "erp",
+        "estado": "operacional",
+        "ultima_actualizacion": "10:30"
+      }
+    },
+    {
+      "evento": "inicio",
+      "ronda": 1,
+      "herramienta": "obtener_sla"
+    },
+    {
+      "evento": "resultado",
+      "ronda": 1,
+      "herramienta": "obtener_sla",
+      "latencia_s": 0.0,
+      "resultado": {
+        "estado": "ok",
+        "criticidad": "alta",
+        "sla_horas": 4
+      }
+    },
+    {
+      "evento": "inicio",
+      "ronda": 1,
+      "herramienta": "buscar_documentacion"
+    },
+    {
+      "evento": "resultado",
+      "ronda": 1,
+      "herramienta": "buscar_documentacion",
+      "latencia_s": 9.63,
+      "resultado": {
+        "estado": "ok",
+        "consulta_busqueda": "F110-031 ERP criticidad alta revisar según documentación",
+        "evidencia": [
+          {
+            "citation_id": "DOC1",
+            "chunk_id": "538952dd82a4df95",
+            "source": "boletin_sap_f110.pdf",
+            "page": 1,
+            "text": "Boletin tecnico SAP F110-031 El error F110-031 aparece durante el proceso automatico de pagos cuando la sociedad no tiene una configuracion valida para el metodo de pago seleccionado. Procedimiento: revisar sociedad, validar metodo de pago y ejecutar nuevamente F110. Material sintetico para la demos",
+            "rerank_score": 2.1448209285736084
+          },
+          {
+            "citation_id": "DOC2",
+            "chunk_id": "63ab1ab82fb38c4c",
+            "source": "boletin_sap_f110.pdf",
+            "page": 1,
+            "text": "idar metodo de pago y ejecutar nuevamente F110. Material sintetico para la demostracion de Retrieval Avanzado. No es documentacion operativa oficial.",
+            "rerank_score": 0.3796475827693939
+          },
+          {
+            "citation_id": "DOC3",
+            "chunk_id": "fdcf3482c497ba19",
+            "source": "guia_general_errores_sap.pdf",
+            "page": 1,
+            "text": "sistema. Material sintetico para la demostracion de Retrieval Avanzado. No es documentacion operativa oficial.",
+            "rerank_score": -3.6161649227142334
+          },
+          {
+            "citation_id": "DOC4",
+            "chunk_id": "89f3998747dffe8a",
+            "source": "manual_credenciales.pdf",
+            "page": 1,
+            "text": "ntetico para la demostracion de Retrieval Avanzado. No es documentacion operativa oficial.",
+            "rerank_score": -3.9762003421783447
+          },
+          {
+            "citation_id": "DOC5",
+            "chunk_id": "c21e4c07a6ad575d",
+            "source": "politica_vacaciones_digital.pdf",
+            "page": 1,
+            "text": "arse con al menos 10 dias corridos de anticipacion. La jefatura debe aprobar o rechazar la solicitud antes de que el periodo comience. Las vacaciones no se consideran aprobadas hasta existir confirmacion explicita en el sistema. Ante dudas, el colaborador debe contactar a Recursos Humanos.",
+            "rerank_score": -6.2477617263793945
+          }
+        ],
+        "nota": "Candidatos recuperados: evaluar si sustentan la respuesta."
+      }
+    }
+  ],
+  "latencia_s": 13.17
+}
