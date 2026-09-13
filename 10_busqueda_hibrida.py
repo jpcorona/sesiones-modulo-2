@@ -11,6 +11,8 @@ def main():
     settings = load_settings()
     client = build_client(settings)
     from retrieval_advanced import bm25_search, vector_search
+    # Comparamos las dos señales lado a lado; esta demo todavía no las fusiona.
+    # Sus scores no son directamente comparables porque usan escalas distintas.
     for name, results in [('BM25', bm25_search(args.query, args.top_k)), ('VECTOR', vector_search(client, settings, args.query, args.top_k))]:
         print('\n===', name, '===')
         for rank, item in enumerate(results, 1):

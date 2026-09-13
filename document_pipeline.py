@@ -39,6 +39,8 @@ def parse_pdf_text(pdf_path: str | Path) -> list[PaginaExtraida]:
 def extract_pdf_pages(pdf_path: str | Path, *, use_ocr: bool = True) -> list[PaginaExtraida]:
     """Conserva texto digital y aplica OCR solo a páginas con poco texto."""
     paginas = parse_pdf_text(pdf_path)
+    # El umbral de 40 caracteres es una heurística: una página corta puede ser
+    # digital y una página larga puede contener texto de mala calidad.
     if not use_ocr or all(len(p.text) >= 40 for p in paginas):
         return paginas
 
@@ -160,6 +162,8 @@ def chunk_text(text: str, *, chunk_size: int = 500, overlap: int = 100) -> list[
     if overlap >= chunk_size:
         raise ValueError("overlap debe ser menor que chunk_size")
 
+    # La ventana se mide en caracteres, no en tokens; puede cortar una oración.
+    # Normalizar espacios simplifica la demo, pero pierde estructura de tablas.
     clean = " ".join(text.split())
     if not clean:
         return []
@@ -173,6 +177,7 @@ def chunk_text(text: str, *, chunk_size: int = 500, overlap: int = 100) -> list[
             chunks.append(piece)
         if end >= len(clean):
             break
+        # Ejemplo: tamaño 300 y solapamiento 80 avanzan 220 caracteres.
         start += chunk_size - overlap
     return chunks
 
@@ -221,6 +226,8 @@ def make_chunks(
     for pagina in paginas:
         pieces = chunk_text(pagina.text, chunk_size=chunk_size, overlap=overlap)
         for idx, piece in enumerate(pieces):
+            # ID reproducible a partir de fuente, página, posición y prefijo.
+            # No es un hash del contenido completo ni una garantía de unicidad.
             raw_id = f"{pagina.source}:{pagina.page}:{idx}:{piece[:80]}"
             chunk_id = hashlib.sha1(raw_id.encode("utf-8")).hexdigest()[:16]
             output.append(

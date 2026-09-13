@@ -26,6 +26,7 @@ def main() -> None:
     """
     settings = load_settings()
     client = build_client(settings)
+    # Se crea un índice nuevo: al guardar se reemplaza el JSON anterior.
     store = JsonVectorStore(INDEX_PATH)
 
     pdfs = sorted(INPUT_DIR.glob("*.pdf"))
@@ -39,6 +40,8 @@ def main() -> None:
         all_chunks.extend(chunks)
         print(f"{pdf.name}: paginas={len(paginas)} chunks={len(chunks)} metodo={paginas[0].extraction_method}")
 
+    # La ingesta calcula los vectores una vez y los persiste con sus fuentes.
+    # Si cambia el modelo de embeddings, hay que reconstruir el índice.
     response = client.embeddings.create(
         model=settings.embedding_model,
         input=[chunk.text for chunk in all_chunks],

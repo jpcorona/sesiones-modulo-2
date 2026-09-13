@@ -52,9 +52,13 @@ class JsonVectorStore:
 
     def search(self, query_embedding: list[float], top_k: int = 3):
         """Devuelve los chunks más similares que formarán el contexto del agente."""
+        # Búsqueda exhaustiva: compara con todos los vectores, adecuada para la demo.
+        # Los índices aproximados son una alternativa cuando crece el corpus.
         scored = [
             (cosine_similarity(query_embedding, record.embedding), record.chunk)
             for record in self.records
         ]
         scored.sort(key=lambda item: item[0], reverse=True)
+        # Top-k devuelve los mejores disponibles, aunque ninguno sea relevante;
+        # aquí no se aplica un umbral mínimo ni se comprueba suficiencia.
         return scored[:top_k]

@@ -8,6 +8,7 @@ def main():
     parser.add_argument("--top-k", type=positive_int, default=5)
     args = parser.parse_args()
     from retrieval_advanced import bm25_search
+    # Primera referencia: buscar términos exactos sin generar una respuesta.
     results = bm25_search(args.query, args.top_k)
     for rank, item in enumerate(results, 1):
         chunk = item['chunk']

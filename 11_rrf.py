@@ -12,6 +12,8 @@ def main():
     settings = load_settings()
     client = build_client(settings)
     from retrieval_advanced import bm25_search, vector_search, reciprocal_rank_fusion
+    # Recuperamos más candidatos por buscador y fusionamos por posición.
+    # ranks permite ver qué buscador aportó cada fragmento.
     results = reciprocal_rank_fusion({'bm25':
                                       bm25_search(args.query, args.candidate_k),
                                       'vector': vector_search(client, settings,

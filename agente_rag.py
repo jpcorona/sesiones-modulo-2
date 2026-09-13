@@ -10,6 +10,8 @@ from pydantic import BaseModel, ConfigDict, ValidationError
 from retrieval_advanced import advanced_retrieval
 from tools import TOOL_SCHEMAS, ejecutar_herramienta
 
+# El prompt define cómo usar la evidencia; las validaciones de abajo complementan
+# estas instrucciones. Un prompt por sí solo no garantiza respuestas fieles.
 INSTRUCCIONES_RAG = """
 Eres un agente de soporte para un laboratorio con documentos sintéticos.
 Para preguntas sobre procedimientos, políticas o errores consulta buscar_documentacion.
@@ -32,11 +34,13 @@ a documentos; no agregues marcadores DOC para herramientas de estado o SLA.
 """.strip()
 
 
+# El esquema valida los argumentos de la herramienta antes de ejecutar búsqueda.
 class ConsultaDocumental(BaseModel):
     model_config = ConfigDict(extra="forbid")
     consulta: str
 
 
+# El modelo recibe un contrato; el código Python es quien ejecuta la herramienta.
 DOCUMENT_TOOL = {
     "type": "function",
     "name": "buscar_documentacion",
@@ -60,6 +64,8 @@ def ejecutar_agente(pregunta: str, *, client, settings, history: str = "",
         raise ValueError("Requiere max_rounds >= 1 y candidate_k >= top_k >= 1")
     entrada = [{"role": "user", "content": json.dumps(
         {"historial": history, "pregunta": pregunta}, ensure_ascii=False)}]
+    # Las fuentes viven solo durante esta pregunta y se deduplican por chunk_id.
+    # El historial recibido no equivale a memoria persistente ni a evidencia.
     fuentes, events = {}, []
     inicio = time.perf_counter()
 
@@ -68,19 +74,25 @@ def ejecutar_agente(pregunta: str, *, client, settings, history: str = "",
         if on_event:
             on_event(event)
 
+    # Permitimos hasta max_rounds rondas con herramientas y una final sin ellas.
+    # El modelo puede responder antes; el límite evita un ciclo indefinido.
     for ronda in range(max_rounds + 1):
         response = client.responses.create(
             model=settings.model, instructions=INSTRUCCIONES_RAG,
             input=entrada, tools=[DOCUMENT_TOOL, *TOOL_SCHEMAS],
             tool_choice="auto" if ronda < max_rounds else "none",
+            # Puede proponer varias llamadas; el bucle local las ejecuta en secuencia.
             parallel_tool_calls=True,
         )
+        # Conservamos la salida completa para continuar el protocolo del modelo.
         entrada.extend(response.output)
         calls = [item for item in response.output if item.type == "function_call"]
         if not calls:
             if not response.output_text.strip():
                 raise RuntimeError("El modelo terminó sin respuesta")
             texto = response.output_text
+            # Validamos existencia de IDs, no si cada afirmación está respaldada
+            # por su cita ni si faltan citas: eso requiere evaluación adicional.
             valid_ids = {source["citation_id"] for source in fuentes.values()}
             def invalid_citations(text):
                 return [ref for ref in re.findall(r"\[(DOC[^\]]*)\]", text) if ref not in valid_ids]
@@ -90,6 +102,7 @@ def ejecutar_agente(pregunta: str, *, client, settings, history: str = "",
                     "Corrige únicamente las referencias documentales inválidas de tu respuesta. "
                     "IDs disponibles: " + json.dumps(sorted(valid_ids)) +
                     ". No uses marcadores DOC para SLA o estado. Conserva solo afirmaciones respaldadas."})
+                # Un único intento de reparación sin herramientas acota el coste.
                 repaired = client.responses.create(
                     model=settings.model, instructions=INSTRUCCIONES_RAG,
                     input=entrada, tools=[DOCUMENT_TOOL, *TOOL_SCHEMAS], tool_choice="none",
@@ -113,9 +126,11 @@ def ejecutar_agente(pregunta: str, *, client, settings, history: str = "",
                         client, settings, args.consulta, history=history,
                         candidate_k=candidate_k, top_k=top_k, use_rewrite=use_rewrite,
                     )
+                    # Entregamos texto y procedencia al generador, no solo scores.
                     evidence = []
                     for item in results:
                         chunk = item["chunk"]
+                        # El mismo chunk conserva su DOCn en búsquedas sucesivas.
                         if chunk.chunk_id not in fuentes:
                             fuentes[chunk.chunk_id] = {
                                 "citation_id": f"DOC{len(fuentes)+1}",
@@ -135,6 +150,8 @@ def ejecutar_agente(pregunta: str, *, client, settings, history: str = "",
                 result = ejecutar_herramienta(call.name, call.arguments)
             emit({"evento": "resultado", "ronda": ronda+1, "herramienta": call.name,
                   "latencia_s": round(time.perf_counter()-started, 2), "resultado": result})
+            # call_id enlaza cada resultado con la solicitud que lo originó.
+            # La siguiente ronda puede usar estos datos para responder o buscar más.
             entrada.append({"type": "function_call_output", "call_id": call.call_id,
                             "output": json.dumps(result, ensure_ascii=False)})
     raise RuntimeError("El agente no completó la respuesta")

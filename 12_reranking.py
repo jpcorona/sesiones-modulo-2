@@ -15,6 +15,8 @@ def main():
     client = build_client(settings)
     from retrieval_advanced import bm25_search, vector_search, reciprocal_rank_fusion, rerank
     fused = reciprocal_rank_fusion({'bm25': bm25_search(args.query, args.candidate_k), 'vector': vector_search(client, settings, args.query, args.candidate_k)})
+    # RRF preselecciona; el cross-encoder evalúa juntos consulta y texto.
+    # Aumentar candidate_k puede mejorar cobertura a cambio de más trabajo local.
     candidates = fused[:args.candidate_k]
     results = rerank(args.query, candidates, args.top_k)
     print(f'Candidatos reales: {len(candidates)}; resultados finales: {len(results)}')

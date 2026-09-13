@@ -43,6 +43,8 @@ def bm25_search(query: str, top_k: int = 5):
     corpus = [tokenize(chunk.text) for chunk in chunks]
     if not any(corpus) or not tokenize(query):
         return []
+    # BM25 pondera coincidencias por frecuencia, rareza y longitud del fragmento.
+    # Es útil para códigos exactos (F110-031); su score no es una probabilidad.
     scores = BM25Okapi(corpus).get_scores(tokenize(query))
     # Los documentos sin términos compartidos no aportan evidencia léxica.
     query_tokens = set(tokenize(query))
@@ -54,6 +56,8 @@ def bm25_search(query: str, top_k: int = 5):
 def vector_search(client, settings, query: str, top_k: int = 5):
     positive_int(top_k)
     store = load_store()
+    # La consulta se representa en el mismo espacio semántico que los documentos.
+    # Igual dimensión es necesaria, pero no garantiza que se usó el mismo modelo.
     embedding = client.embeddings.create(model=settings.embedding_model, input=query).data[0].embedding
     if any(len(record.embedding) != len(embedding) for record in store.records):
         raise ValueError("Dimensiones incompatibles: reindexa con el mismo modelo de embeddings.")
@@ -68,11 +72,14 @@ def chunk_key(chunk) -> str:
 def reciprocal_rank_fusion(rankings: dict[str, list], k: int = 60):
     """Suma 1/(k+posición); cada chunk aporta una vez por ranking."""
     positive_int(k)
+    # BM25 y coseno tienen escalas distintas: RRF combina posiciones, no scores.
+    # Con k=60, los primeros puestos pesan más, pero sin dominar tanto la fusión.
     fused = {}
     for name, ranking in rankings.items():
         seen = set()
         for rank, item in enumerate(ranking, start=1):
             key = chunk_key(item["chunk"])
+            # Un duplicado no debe sumar dos votos dentro de una misma lista.
             if key in seen:
                 continue
             seen.add(key)
@@ -82,6 +89,7 @@ def reciprocal_rank_fusion(rankings: dict[str, list], k: int = 60):
     return sorted(fused.values(), key=lambda item: item["rrf_score"], reverse=True)
 
 
+# El cross-encoder se carga una vez por proceso; la primera carga puede descargarlo.
 @lru_cache(maxsize=1)
 def load_reranker():
     from sentence_transformers import CrossEncoder
@@ -92,8 +100,12 @@ def rerank(query: str, candidates: list, top_k: int = 5):
     positive_int(top_k)
     if not candidates:
         return []
+    # El cross-encoder lee consulta y fragmento juntos: afina la relevancia,
+    # pero cuesta más por candidato que comparar embeddings precalculados.
     pairs = [(query, item["chunk"].text) for item in candidates]
     scores = load_reranker().predict(pairs)
+    # Conservamos los metadatos y scores previos para explicar el orden final.
+    # El score del reranker tampoco representa una certeza factual.
     ranked = [dict(item, rerank_score=float(score)) for item, score in zip(candidates, scores)]
     return sorted(ranked, key=lambda item: item["rerank_score"], reverse=True)[:top_k]
 
@@ -109,6 +121,8 @@ def generate_text(client, settings, instructions: str, text: str) -> str:
     return result
 
 
+# Rewriting resuelve referencias como «lo de ayer» usando el historial explícito.
+# Hay que revisar que conserve códigos: una consulta alterada cambia la evidencia.
 def rewrite_query(client, settings, query: str, history: str = "") -> str:
     return generate_text(client, settings,
         "Convierte la consulta en una consulta para recuperación documental. "
@@ -118,6 +132,8 @@ def rewrite_query(client, settings, query: str, history: str = "") -> str:
         f"Historial:\n{history}\n\nConsulta:\n{query}")
 
 
+# Multi-query amplía las formulaciones para intentar recuperar evidencia omitida.
+# En la demo 14 se busca con cada variante y se fusionan los rankings mediante RRF.
 def generate_queries(client, settings, query: str, n: int = 3) -> list[str]:
     positive_int(n)
     text = generate_text(client, settings,
@@ -139,6 +155,8 @@ def generate_hypothetical_document(client, settings, query: str) -> str:
 
 
 def hyde_search(client, settings, query: str, top_k: int = 5):
+    # HyDE busca con el embedding de un texto hipotético, que puede inventar hechos.
+    # Solo los fragmentos reales recuperados pueden usarse como evidencia.
     hypothetical = generate_hypothetical_document(client, settings, query)
     return hypothetical, vector_search(client, settings, hypothetical, top_k)
 
@@ -149,8 +167,13 @@ def advanced_retrieval(client, settings, query: str, history: str = "",
     positive_int(top_k)
     if top_k > candidate_k:
         raise ValueError("top_k no puede superar candidate_k")
+    # Flujo integrado: reescritura opcional -> BM25 + vectores -> RRF -> reranking.
+    # Multi-query y HyDE se enseñan aparte; esta función no los ejecuta.
+    # candidate_k amplía la selección inicial; top_k limita el contexto final.
     search_query = rewrite_query(client, settings, query, history) if use_rewrite else query
     rankings = {"bm25": bm25_search(search_query, candidate_k),
                 "vector": vector_search(client, settings, search_query, candidate_k)}
     fused = reciprocal_rank_fusion(rankings)
+    # Recortar antes del cross-encoder limita su coste; un fragmento descartado
+    # aquí ya no puede ser rescatado por el reranker.
     return search_query, rerank(search_query, fused[:candidate_k], top_k)

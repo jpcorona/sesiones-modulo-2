@@ -13,6 +13,8 @@ def main():
     client = build_client(settings)
     from retrieval_advanced import generate_queries, bm25_search, reciprocal_rank_fusion
     queries = generate_queries(client, settings, args.query, args.n)
+    # Incluimos la consulta original para no depender solo de variantes generadas.
+    # Aquí cada búsqueda es BM25; las variantes pueden ampliar la cobertura.
     rankings = {'original': bm25_search(args.query, args.top_k)}
     for i, query in enumerate(queries, 1):
         print(f'\nQUERY {i}: {query}')

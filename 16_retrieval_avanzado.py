@@ -16,6 +16,8 @@ def main():
     settings = load_settings()
     client = build_client(settings)
     from retrieval_advanced import advanced_retrieval
+    # Este recorrido termina en evidencia ordenada; aún no redacta una respuesta.
+    # --no-rewrite permite comparar el efecto de reescribir la misma consulta.
     search_query, results = advanced_retrieval(client, settings, args.query, args.history, args.candidate_k, args.top_k, not args.no_rewrite)
     print('QUERY ORIGINAL:', args.query)
     print('QUERY BÚSQUEDA:', search_query)

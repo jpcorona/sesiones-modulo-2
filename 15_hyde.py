@@ -11,6 +11,8 @@ def main():
     settings = load_settings()
     client = build_client(settings)
     from retrieval_advanced import hyde_search
+    # El texto inventado guía la búsqueda semántica; no se agrega al índice.
+    # Compare la hipótesis con los documentos reales para detectar diferencias.
     hypothetical, results = hyde_search(client, settings, args.query, args.top_k)
     print('\n=== DOCUMENTO HIPOTÉTICO: NO ES EVIDENCIA ===\n', hypothetical)
     print('\n=== DOCUMENTOS REALES RECUPERADOS ===')

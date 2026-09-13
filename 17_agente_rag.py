@@ -23,6 +23,8 @@ def main():
     settings = load_settings()
     def show(event):
         print(json.dumps(event, ensure_ascii=False, indent=2), flush=True)
+    # El agente añade la decisión de herramientas y la generación al retrieval.
+    # --trace muestra llamadas y evidencia para explicar el proceso en clase.
     result = ejecutar_agente(
         args.query, client=build_client(settings), settings=settings,
         history=args.history, candidate_k=args.candidate_k, top_k=args.top_k,
@@ -33,6 +35,7 @@ def main():
     for source in result["fuentes"]:
         print(f"[{source['citation_id']}] {source['source']} | página {source['page']} | chunk={source['chunk_id']}")
     print(f"\nTiempo total: {result['latencia_s']} s")
+    # Guardar el resultado permite revisar fuentes y latencias después de la demo.
     if args.json_output:
         args.json_output.parent.mkdir(parents=True, exist_ok=True)
         args.json_output.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")

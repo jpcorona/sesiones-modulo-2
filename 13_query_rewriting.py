@@ -12,6 +12,8 @@ def main():
     settings = load_settings()
     client = build_client(settings)
     from retrieval_advanced import rewrite_query
+    # Observe cómo el historial resuelve la referencia ambigua de la consulta.
+    # Esta demo solo reescribe: no recupera documentos ni utiliza --top-k.
     print('ORIGINAL:', args.query)
     print('HISTORIAL:', args.history)
     print('REWRITTEN:', rewrite_query(client, settings, args.query, args.history))
